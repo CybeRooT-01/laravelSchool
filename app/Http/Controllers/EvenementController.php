@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Classe;
 use App\Models\Events;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\EventPostRequest;
 
 class EvenementController extends Controller
@@ -72,5 +73,18 @@ class EvenementController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function getEvents($idEvent){
+        $events = DB::table('event_classe')
+        ->join('classes', 'classes.id', '=', 'event_classe.classe_id')
+        ->join('events', 'events.id', '=', 'event_classe.events_id')
+        ->join('inscriptions', 'inscriptions.classe_id', '=', 'event_classe.classe_id')
+        ->join('eleves', 'eleves.id', 'inscriptions.eleve_id')
+        ->where('events.id', $idEvent)
+        ->select('eleves.nom', 'eleves.prenom', 'events.libelle', 'events.date_Evenement')
+        ->get();
+
+        return response()->json($events);
     }
 }

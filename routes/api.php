@@ -42,3 +42,5 @@ Route::get('/classes/{id}/notes/eleve/{eleveId}', [ClasseController::class, 'get
 Route::get('/evenements', [EvenementController::class, 'index']);
 Route::apiResource('/evenements', EvenementController::class)->only(['index', 'store']);
 Route::post('/evenement/{id}/participation', [EvenementController::class,'participate']);
+Route::get('/evenement/{id}/eleves',[EvenementController::class, 'getEvents']);
+Route::get('/eleves/{id}/evenement',[EleveController::class, 'getEventsByEleve']);

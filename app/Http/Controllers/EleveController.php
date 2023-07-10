@@ -8,6 +8,7 @@ use App\Models\Classe;
 use App\Models\Inscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\ElevePostRequest;
 use App\Http\Requests\sortiePutRequest;
 
@@ -78,6 +79,18 @@ class EleveController extends Controller
             "message" => "Les élèves ont été modifiés avec succès",
             "eleves" => $elevesModifies,
         ]);
+    }
+    public function getEventsByEleve($idEleves){
+        $eleves = DB::table('event_classe')
+        ->join('events', 'events.id', '=', 'event_classe.events_id')
+        ->join('classes', 'classes.id', '=', 'event_classe.classe_id')
+        ->join('inscriptions', 'inscriptions.classe_id','=', 'classes.id')
+        ->join('eleves', 'eleves.id', '=', 'inscriptions.eleve_id')
+        ->where('eleves.id', $idEleves)
+        ->select('eleves.nom', 'eleves.prenom', 'events.libelle', 'events.date_Evenement')
+        ->get();
+        $eleves->isEmpty()?$eleves="no event":$eleves;
+        return response()->json($eleves);
     }
     
     
