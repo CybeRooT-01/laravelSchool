@@ -15,6 +15,7 @@ use App\Http\Requests\notePostRequest;
 use App\Http\Resources\classeRessource;
 use App\Http\Requests\DisciplinePostRequest;
 use App\Http\Requests\EvaluationPostRequest;
+use Illuminate\Support\Facades\DB;
 
 class ClasseController extends Controller
 {
@@ -163,84 +164,126 @@ class ClasseController extends Controller
         }
         return response()->json($result);
     }
-    public function getNoteByDiscipline(Request $request, $classeId, $disciplineId)
-    {
-        $classe = Classe::with(['inscriptions.notes.assosCinq'])
-            ->where('id', $classeId)
-            ->first();
+    // public function getNoteByDiscipline($classeId, $disciplineId)
+    // {
+    //     $classe = Classe::with(['inscriptions.notes.assosCinq'])
+    //         ->where('id' , $classeId)
+    //         ->first();
 
-        if (!$classe) {
-            return response()->json(['message' => 'La classe n\'existe pas'], 404);
-        }
+    //     if (!$classe) {
+    //         return response()->json(['message' => 'La classe n\'existe pas'], 404);
+    //     }
+    //     $notes = [];
+    //     foreach ($classe->inscriptions as $inscription) {
+    //         foreach ($inscription->notes as $note) {
+    //             if ($note->assosCinq->discipline_id == $disciplineId) {
+    //                 $notes[] = [
+    //                     'eleve_id' => $inscription->eleve_id,
+    //                     'nom' => $inscription->eleve->nom,
+    //                     'prenom' => $inscription->eleve->prenom,
+    //                     'note' => $note->note,
+    //                 ];
+    //             }
+    //         }
+    //     }
 
-        $notes = [];
+    //     return response()->json($notes);
+    // }
 
-        foreach ($classe->inscriptions as $inscription) {
-            foreach ($inscription->notes as $note) {
-                if ($note->assosCinq->discipline_id == $disciplineId) {
-                    $notes[] = [
-                        'eleve_id' => $inscription->eleve_id,
-                        'nom' => $inscription->eleve->nom,
-                        'prenom' => $inscription->eleve->prenom,
-                        'note' => $note->note,
-                    ];
-                }
-            }
-        }
+    // public function getNoteByClasse(Request $request, $classeId)
+    // {
+    //     $classe = Classe::with(['inscriptions.notes.assosCinq.discipline'])
+    //         ->where('id', $classeId)
+    //         ->first();
 
+    //     if (!$classe) {
+    //         return response()->json(['message' => 'La classe n\'existe pas'], 404);
+    //     }
+
+    //     $notes = [];
+
+    //     foreach ($classe->inscriptions as $inscription) {
+    //         foreach ($inscription->notes as $note) {
+    //             $notes[] = [
+    //                 'eleve_id' => $inscription->eleve_id,
+    //                 'discipline' => $note->assosCinq->discipline->libelle,
+    //                 'nom' => $inscription->eleve->nom,
+    //                 'prenom' => $inscription->eleve->prenom,
+    //                 'note' => $note->note,
+    //             ];
+    //         }
+    //     }
+    //     return response()->json($notes);
+    // }
+    // public function getNoteByEleve(Request $request, $classeId, $eleveId)
+    // {
+    //     $classe = Classe::with(['inscriptions.notes.assosCinq.discipline'])
+    //         ->where('id', $classeId)
+    //         ->first();
+
+    //     if (!$classe) {
+    //         return response()->json(['message' => 'La classe n\'existe pas'], 404);
+    //     }
+
+    //     $notes = [];
+
+    //     foreach ($classe->inscriptions as $inscription) {
+    //         if ($inscription->eleve_id == $eleveId) {
+    //             foreach ($inscription->notes as $note) {
+    //                 $notes[] = [
+    //                     'discipline' => $note->assosCinq->discipline->libelle,
+    //                     'note' => $note->note,
+    //                 ];
+    //             }
+    //         }
+    //     }
+
+    //     return response()->json($notes);
+    // }
+    // =================================refais avec join=========
+    public function getNoteByDiscipline($classeId, $disiplineId){
+        $classe = DB::table('classes')
+        ->join('inscriptions', 'inscriptions.classe_id', '=', 'classes.id')
+        ->join('notes', 'notes.inscription_id', '=', 'inscriptions.id')
+        ->join('assos_cinqs', 'notes.assosCinq_id', '=', 'assos_cinqs.id')
+        ->join('eleves', 'eleves.id', '=', 'inscriptions.eleve_id')
+        ->where('classes.id', $classeId)
+        ->where('assos_cinqs.discipline_id', $disiplineId)
+        ->select('eleves.nom','eleves.prenom','notes.note')
+        ->get();
+        $classe->isEmpty()? $classe = "pas de note pour cette discipline": $classe;
+
+       return  response()->json($classe);
+    }
+
+    public function getNoteByClasse($classeId){
+        $notes = DB::table('classes')
+        ->join('inscriptions', 'inscriptions.classe_id', '=', 'classes.id')
+        ->join('notes', 'notes.inscription_id', '=', 'inscriptions.id')
+        ->join('eleves', 'inscriptions.eleve_id','=','eleves.id')
+        ->where('classes.id', '=', $classeId)
+        ->select('notes.note', 'eleves.nom', 'eleves.prenom')
+        ->get();
+
+        $notes->isEmpty()?$notes="no notes" : $notes;
         return response()->json($notes);
     }
 
-    public function getNoteByClasse(Request $request, $classeId)
-    {
-        $classe = Classe::with(['inscriptions.notes.assosCinq.discipline'])
-            ->where('id', $classeId)
-            ->first();
-
-        if (!$classe) {
-            return response()->json(['message' => 'La classe n\'existe pas'], 404);
-        }
-
-        $notes = [];
-
-        foreach ($classe->inscriptions as $inscription) {
-            foreach ($inscription->notes as $note) {
-                $notes[] = [
-                    'eleve_id' => $inscription->eleve_id,
-                    'discipline' => $note->assosCinq->discipline->libelle,
-                    'nom' => $inscription->eleve->nom,
-                    'prenom' => $inscription->eleve->prenom,
-                    'note' => $note->note,
-                ];
-            }
-        }
+    public function getNoteByEleve($classeId, $eleveId){
+        $notes = DB::table('classes')
+        ->join('inscriptions', 'inscriptions.classe_id', '=', 'classes.id')
+        ->join('notes', 'notes.inscription_id', '=', 'inscriptions.id')
+        ->join('eleves', 'eleves.id', '=', 'inscriptions.eleve_id')
+        ->join('assos_cinqs', 'notes.assosCinq_id', '=', 'assos_cinqs.id')
+        ->join('disciplines', 'disciplines.id', 'assos_cinqs.discipline_id')
+        ->where('eleves.id', $eleveId)
+        ->where('classes.id', $classeId)
+        ->select('eleves.nom', 'eleves.prenom', 'notes.note', 'disciplines.libelle')
+        ->get();
+        $notes->isEmpty()?$notes = 'no notes':$notes;
         return response()->json($notes);
     }
-    public function getNoteByEleve(Request $request, $classeId, $eleveId)
-    {
-        $classe = Classe::with(['inscriptions.notes.assosCinq.discipline'])
-            ->where('id', $classeId)
-            ->first();
 
-        if (!$classe) {
-            return response()->json(['message' => 'La classe n\'existe pas'], 404);
-        }
-
-        $notes = [];
-
-        foreach ($classe->inscriptions as $inscription) {
-            if ($inscription->eleve_id == $eleveId) {
-                foreach ($inscription->notes as $note) {
-                    $notes[] = [
-                        'discipline' => $note->assosCinq->discipline->libelle,
-                        'note' => $note->note,
-                    ];
-                }
-            }
-        }
-
-        return response()->json($notes);
-    }
     
 
 }
