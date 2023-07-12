@@ -132,6 +132,7 @@ class ClasseController extends Controller
                 }
             }
         }
+
         return response()->json($result);
     }
     public function updateNote(notePostRequest $request, $classeId, $disciplineId, $evaluationId)
