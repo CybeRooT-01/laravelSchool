@@ -16,6 +16,7 @@ class Mail extends Mailable
      *
      * @param  array  $event
      * @return void
+     *
      */
     public function __construct($event)
     {
@@ -32,4 +33,5 @@ class Mail extends Mailable
         return $this->view('emails.send')
                     ->subject('Nouvel événement : '.$this->event['titre']);
     }
+
 }

@@ -240,21 +240,46 @@ class ClasseController extends Controller
 
     //     return response()->json($notes);
     // }
-    // =================================refais avec join=========
-    public function getNoteByDiscipline($classeId, $disiplineId){
+    public function getNoteByDiscipline($classeId, $disiplineId)
+    {
         $classe = DB::table('classes')
-        ->join('inscriptions', 'inscriptions.classe_id', '=', 'classes.id')
-        ->join('notes', 'notes.inscription_id', '=', 'inscriptions.id')
-        ->join('assos_cinqs', 'notes.assosCinq_id', '=', 'assos_cinqs.id')
-        ->join('eleves', 'eleves.id', '=', 'inscriptions.eleve_id')
-        ->where('classes.id', $classeId)
-        ->where('assos_cinqs.discipline_id', $disiplineId)
-        ->select('eleves.nom','eleves.prenom','notes.note')
-        ->get();
-        $classe->isEmpty()? $classe = "pas de note pour cette discipline": $classe;
+            ->join('inscriptions', 'inscriptions.classe_id', '=', 'classes.id')
+            ->join('notes', 'notes.inscription_id', '=', 'inscriptions.id')
+            ->join('assos_cinqs', 'notes.assosCinq_id', '=', 'assos_cinqs.id')
+            ->join('eleves', 'eleves.id', '=', 'inscriptions.eleve_id')
+            ->join('evaluations', 'evaluations.id', '=', 'assos_cinqs.evaluation_id')
+            ->where('classes.id', $classeId)
+            ->where('assos_cinqs.discipline_id', $disiplineId)
+            ->select('eleves.id', 'eleves.nom', 'eleves.prenom')
+            ->distinct()
+            ->get();
 
-       return  response()->json($classe);
+        $result = [];
+
+        foreach ($classe as $eleve) {
+            $notes = DB::table('notes')
+                ->join('inscriptions', 'notes.inscription_id', '=', 'inscriptions.id')
+                ->join('assos_cinqs', 'notes.assosCinq_id', '=', 'assos_cinqs.id')
+                ->join('evaluations', 'evaluations.id', '=', 'assos_cinqs.evaluation_id')
+                ->where('inscriptions.eleve_id', $eleve->id)
+                ->where('assos_cinqs.discipline_id', $disiplineId)
+                ->whereIn('evaluations.libelle', ['Devoir', 'Composition'])
+                ->select('notes.note', 'evaluations.libelle')
+                ->get();
+
+            $result[$eleve->id] = [
+                'nom' => $eleve->nom,
+                'prenom' => $eleve->prenom,
+                'notes' => $notes
+            ];
+        }
+
+        return response()->json($result);
     }
+
+
+
+
 
     public function getNoteByClasse($classeId){
         $notes = DB::table('classes')
@@ -284,6 +309,6 @@ class ClasseController extends Controller
         return response()->json($notes);
     }
 
-    
+
 
 }
