@@ -274,7 +274,6 @@ class ClasseController extends Controller
                 'notes' => $notes
             ];
         }
-
         return response()->json($result);
     }
 

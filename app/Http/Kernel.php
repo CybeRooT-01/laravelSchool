@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AjoutJWTheader;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -21,7 +22,8 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
-        \App\Http\Middleware\CorsMiddleware::class,
+        \App\Http\Middleware\CorsMiddleware::class, //autorise mes url que je rcuperer avec le front... (j'en suis sur y'a pas de vulnerabilité cors)
+        \App\Http\Middleware\AjoutJWTheader::class, //cette classe ajoute un token sur tout mes requetes
     ];
 
     /**

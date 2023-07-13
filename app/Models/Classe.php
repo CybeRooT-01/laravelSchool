@@ -39,5 +39,9 @@ class Classe extends Model
     {
         return $this->belongsTo(AnneeScolaire::class, 'annee_scolaire_id');
     }
+    public function eleves()
+    {
+        return $this->hasMany(Eleve::class);
+    }
 
 }

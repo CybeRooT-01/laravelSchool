@@ -51,4 +51,8 @@ class Eleve extends Model
     {
         return $this->hasMany(Inscription::class, 'eleve_id');
     }
+    public function classe()
+    {
+        return $this->belongsTo(Classe::class);
+    }
 }

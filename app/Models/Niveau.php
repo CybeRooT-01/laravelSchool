@@ -15,8 +15,9 @@ class Niveau extends Model
         'updated_at',
     ];
     
-    public function classe():HasMany
+    public function classes():HasMany
     {
         return $this->hasMany(Classe::class);
     }
+
 }

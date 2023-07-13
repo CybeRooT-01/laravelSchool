@@ -15,15 +15,14 @@ class niveauController extends Controller
      * Display a listing of the resource.
      */
     use JoinQueryParams;
- 
 
-    // public function index()
-    // {
-    //     $htmlContent = View::file(resource_path('html/niveau.html'))->render();
-    //      return response($htmlContent)->header('Content-Type', 'text/html');
-    // }
-    public function index(){
-        return niveauRessource::collection(niveau::all());
+
+    public function index()
+    {
+        $query = Niveau::query();
+        $query = $this->joinClasses($query);
+        $niveaux = $query->get();
+        return response()->json($niveaux);
     }
 
     /**

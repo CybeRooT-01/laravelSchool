@@ -25,9 +25,3 @@ trait RequetesInsertNote{
         ->first();
     }
 }
-
-/*
--l'ensemble des notes de la classe /classe/bulletin
--l'ensemble des notes d'un eleve /classe/bulletin/id
--le put... pour modifier une note
-*/
