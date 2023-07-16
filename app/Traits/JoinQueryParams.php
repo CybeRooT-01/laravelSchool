@@ -12,6 +12,9 @@ trait JoinQueryParams
 
             if (request()->has('eleve')) {
                 $query->with('classes.inscriptions.eleve');
+                if(request()->has('notes')){
+                    $query->with('classes.inscriptions.notes');
+                }
             }
         }
         return $query;

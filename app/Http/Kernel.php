@@ -23,7 +23,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\CorsMiddleware::class, //autorise mes url que je rcuperer avec le front... (j'en suis sur y'a pas de vulnerabilité cors)
-        \App\Http\Middleware\AjoutJWTheader::class, //cette classe ajoute un token sur tout mes requetes
+       // \App\Http\Middleware\AjoutJWTheader::class, //cette classe ajoute un token sur tout mes requetes
     ];
 
     /**

@@ -4,11 +4,19 @@ use App\Mail\Mail;
 use App\Models\Classe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\coefController;
 use App\Http\Controllers\EleveController;
 use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\niveauController;
+use App\Http\Controllers\EvenementController;
+use App\Http\Controllers\UserController;
+
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+// Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api')->name('logout');
+Route::post('/users/{id}/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +52,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/evenements', EvenementController::class)->only(['index', 'store']);
     Route::post('/evenement/{id}/participation', [EvenementController::class, 'participate']);
     Route::get('/evenement/{id}/eleves', [EvenementController::class, 'getEvents']);
-    Route::get('/eleves/{id}/evenement', [EleveController::class, 'getEventsByEleve']);
-
+    Route::get('/eleves/{id}/participation', [EleveController::class, 'getEventsByEleve']);
+    Route::apiResource('/users', UserController::class);
+    Route::get('/users/{id}/evenement', [UserController::class, 'getEventsByUser']);
 });

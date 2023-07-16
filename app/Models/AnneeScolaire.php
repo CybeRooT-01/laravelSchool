@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AnneeScolaire extends Model
 {
-    use HasFactoryory;
+    use HasFactory;
     protected $hidden = [
         'created_at',
         'updated_at',
