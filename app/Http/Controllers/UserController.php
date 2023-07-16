@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
-use App\Models\Events;
+use Event;
 use App\Models\User;
+use App\Models\Events;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserRessource;
+use App\Http\Resources\EventRessource;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -104,7 +108,13 @@ class UserController extends Controller
     }
 
     public function getEventsByUser($userId){
-        $users = Events::where('user_id', $userId)->get();
-        return $users;
+        $Events = Events::where('user_id', $userId)->get();
+        return response()->json([
+            'status'=> Response::HTTP_OK,
+            'message' => 'liste des evenements de l\'utilisateur',
+            'success' => true,
+            'data' => EventRessource::collection($Events)
+        ]);
+
     }
 }
